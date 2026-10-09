@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loan Prepayment Calculator</title>
+    <meta name="description" content="Compare Reduce Tenure and Reduce EMI prepayment strategies using a month-by-month amortization schedule." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="site-nav" aria-label="Calculators">
+        <a href="emi.html">EMI Calculator</a>
+        <a href="index.html" aria-current="page">Prepayment Calculator</a>
+      </nav>
+      <header class="page-header">
+        <h1>Loan Prepayment Calculator</h1>
+        <p class="lede">See how prepayments change your EMI, tenure and total interest — calculated month by month.</p>
+      </header>
+
+      <main class="layout">
+        <!-- Inputs -->
+        <section class="card inputs" aria-labelledby="inputs-title">
+          <h2 id="inputs-title" class="card-title">Loan details</h2>
+          <form id="loan-form" novalidate>
+            <div class="field">
+              <label for="principal">Outstanding loan principal</label>
+              <div class="input-wrap has-prefix">
+                <span class="affix" aria-hidden="true">₹</span>
+                <input id="principal" name="principal" type="text" inputmode="numeric" autocomplete="off"
+                  data-format="inr" aria-describedby="principal-error" />
+              </div>
+              <p class="error" id="principal-error" role="alert"></p>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="tenureMonths">Remaining tenure</label>
+                <div class="input-wrap has-suffix">
+                  <input id="tenureMonths" name="tenureMonths" type="number" inputmode="numeric" min="1" max="600" step="1"
+                    aria-describedby="tenureMonths-hint tenureMonths-error" />
+                  <span class="affix" aria-hidden="true">months</span>
+                </div>
+                <p class="hint" id="tenureMonths-hint"></p>
+                <p class="error" id="tenureMonths-error" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <label for="annualRate">Annual interest rate</label>
+                <div class="input-wrap has-suffix">
+                  <input id="annualRate" name="annualRate" type="number" inputmode="decimal" min="0" max="50" step="0.05"
+                    aria-describedby="annualRate-error" />
+                  <span class="affix" aria-hidden="true">%</span>
+                </div>
+                <p class="error" id="annualRate-error" role="alert"></p>
+              </div>
+            </div>
+
+            <div class="divider" role="presentation"></div>
+            <h3 class="section-title">Prepayment</h3>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="frequency">Frequency</label>
+                <div class="input-wrap select-wrap">
+                  <select id="frequency" name="frequency" aria-describedby="frequency-hint">
+                    <option value="one-time">One-time</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </div>
+                <p class="hint" id="frequency-hint"></p>
+              </div>
+
+              <div class="field">
+                <label for="penaltyPercent">Prepayment penalty</label>
+                <div class="input-wrap has-suffix">
+                  <input id="penaltyPercent" name="penaltyPercent" type="number" inputmode="decimal" min="0" max="100" step="0.1"
+                    aria-describedby="penaltyPercent-error" />
+                  <span class="affix" aria-hidden="true">%</span>
+                </div>
+                <p class="error" id="penaltyPercent-error" role="alert"></p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="prepayment" id="prepayment-label">Prepayment amount</label>
+              <div class="input-wrap has-prefix">
+                <span class="affix" aria-hidden="true">₹</span>
+                <input id="prepayment" name="prepayment" type="text" inputmode="numeric" autocomplete="off"
+                  data-format="inr" aria-describedby="prepayment-hint prepayment-error" />
+              </div>
+              <p class="hint" id="prepayment-hint"></p>
+              <p class="error" id="prepayment-error" role="alert"></p>
+            </div>
+
+            <fieldset class="field">
+              <legend>Strategy</legend>
+              <div class="segmented" role="radiogroup" aria-label="Prepayment strategy">
+                <input type="radio" id="strategy-tenure" name="strategy" value="reduce-tenure" />
+                <label for="strategy-tenure">Reduce Tenure</label>
+                <input type="radio" id="strategy-emi" name="strategy" value="reduce-emi" />
+                <label for="strategy-emi">Reduce EMI</label>
+              </div>
+              <p class="hint" id="strategy-hint"></p>
+            </fieldset>
+
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">Calculate</button>
+              <button type="button" class="btn btn-ghost" id="reset-btn">Reset</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Results -->
+        <section class="results" aria-labelledby="results-title" aria-live="polite">
+          <h2 id="results-title" class="visually-hidden">Results</h2>
+
+          <div class="card invalid-state" id="invalid-state" hidden>
+            <p>Fix the highlighted fields to see your results.</p>
+          </div>
+
+          <div id="results-body">
+            <div class="metrics" role="list">
+              <div class="metric metric-before" role="listitem">
+                <span class="metric-label">Original EMI</span>
+                <span class="metric-value" data-out="originalEMI">—</span>
+              </div>
+              <div class="metric metric-after" role="listitem">
+                <span class="metric-label">New EMI</span>
+                <span class="metric-value" data-out="newEMI">—</span>
+              </div>
+              <div class="metric metric-saved" role="listitem">
+                <span class="metric-label">Interest saved</span>
+                <span class="metric-value accent" data-out="interestSaved">—</span>
+              </div>
+              <div class="metric metric-after" role="listitem">
+                <span class="metric-label">New tenure</span>
+                <span class="metric-value" data-out="newTenure">—</span>
+              </div>
+            </div>
+
+            <article class="card impact" aria-labelledby="impact-title">
+              <div class="impact-head">
+                <h3 id="impact-title" class="card-title">Loan Impact</h3>
+                <span class="pill"><span class="pill-dot" aria-hidden="true"></span><span data-out="strategyLabel">Reduce Tenure</span></span>
+              </div>
+              <div class="impact-grid">
+                <div class="impact-col before">
+                  <h4>Before</h4>
+                  <dl>
+                    <div><dt>Your Tenure</dt><dd data-out="beforeTenure">—</dd></div>
+                    <div><dt>Your Interest paid</dt><dd data-out="beforeInterest">—</dd></div>
+                  </dl>
+                </div>
+                <div class="impact-col after">
+                  <h4>After</h4>
+                  <dl>
+                    <div><dt>Your Tenure</dt><dd data-out="afterTenure">—</dd></div>
+                    <div><dt>Your Interest paid</dt><dd data-out="afterInterest">—</dd></div>
+                  </dl>
+                </div>
+              </div>
+              <div class="impact-foot">
+                <p class="headline" data-out="headline"></p>
+                <p class="note" data-out="note"></p>
+              </div>
+              <dl class="savings" id="savings-breakdown">
+                <div class="prepaid"><dt>Total prepaid</dt><dd data-out="totalPrepaid">—</dd></div>
+                <div class="gross"><dt>Gross interest saved</dt><dd data-out="grossSaved">—</dd></div>
+                <div class="penalty"><dt>Prepayment penalty</dt><dd data-out="penalty">—</dd></div>
+                <div class="net"><dt>Net savings</dt><dd data-out="netSavings">—</dd></div>
+              </dl>
+            </article>
+
+            <article class="card chart-card viz-root" aria-labelledby="chart-title">
+              <div class="chart-head">
+                <h3 id="chart-title" class="card-title">Outstanding balance</h3>
+                <ul class="legend" aria-label="Chart legend">
+                  <li><span class="swatch swatch-baseline" aria-hidden="true"></span>Without Prepayment</li>
+                  <li><span class="swatch swatch-strategy" aria-hidden="true"></span><span data-out="strategyLegend">Reduce Tenure</span></li>
+                </ul>
+              </div>
+              <div class="chart" id="chart" role="img" aria-label="Outstanding balance by month"></div>
+              <details class="schedule">
+                <summary>View amortization schedule</summary>
+                <div class="table-scroll" tabindex="0">
+                  <table>
+                    <caption class="visually-hidden">Month-by-month schedule for the selected strategy</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">Month</th>
+                        <th scope="col">EMI paid</th>
+                        <th scope="col">Interest</th>
+                        <th scope="col">Principal</th>
+                        <th scope="col">Prepayment</th>
+                        <th scope="col">Balance</th>
+                        <th scope="col">Without prepayment</th>
+                      </tr>
+                    </thead>
+                    <tbody id="schedule-body"></tbody>
+                  </table>
+                </div>
+              </details>
+            </article>
+          </div>
+        </section>
+      </main>
+      <footer class="page-footer">
+        <p>Estimates use a standard reducing-balance amortization with monthly compounding. Figures are rounded to the nearest rupee for display. Penalty is charged on the amount actually prepaid and does not reduce principal.</p>
+      </footer>
+    </div>
+    <script type="module" src="src/ui/app.js"></script>
+  </body>
+</html>

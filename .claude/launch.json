@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "loan-calculator", "runtimeExecutable": "node", "runtimeArgs": ["scripts/serve.js"], "port": 5173 }
+  ]
+}

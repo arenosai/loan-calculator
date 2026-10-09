@@ -1,0 +1,14 @@
+{
+  "name": "loan-prepayment-calculator",
+  "version": "1.0.0",
+  "description": "Loan repayment & prepayment calculator (Reduce Tenure / Reduce EMI) with a real month-by-month amortization engine.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
